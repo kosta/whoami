@@ -4,9 +4,11 @@ use maud::{html, Markup};
 use axum::{extract::ConnectInfo, http::HeaderMap, routing::get, Router};
 
 async fn hello_world(ConnectInfo(addr): ConnectInfo<SocketAddr>, headers: HeaderMap) -> Markup {
+    let ip = headers.get("X-Forwarded-For").map(|value| value.to_str().map(ToString::to_string).ok()).flatten().unwrap_or_else(|| addr.ip().to_string());
+
     html! {
         h1 { "Your IP" }
-        p { "Your IP: " (addr.ip()) }
+        p { "Your IP: " (ip) }
         p { "You connected from port: " (addr.port()) }
         h1 { "Request Headers" }
         p { "You sent the following headers:" }
