@@ -1,7 +1,9 @@
 use std::net::SocketAddr;
 
-use maud::{html, Markup};
+use maud::{html, Markup, PreEscaped};
 use axum::{extract::ConnectInfo, http::HeaderMap, routing::get, Router};
+
+const SCRIPT: &str = include_str!("index.js");
 
 async fn hello_world(ConnectInfo(addr): ConnectInfo<SocketAddr>, headers: HeaderMap) -> Markup {
     let ip = headers.get("X-Forwarded-For").map(|value| value.to_str().map(ToString::to_string).ok()).flatten().unwrap_or_else(|| addr.ip().to_string());
@@ -23,6 +25,9 @@ async fn hello_world(ConnectInfo(addr): ConnectInfo<SocketAddr>, headers: Header
                 }
             }
         }
+        h1 { "Languages" }
+        p { "from " code { "navigator.languages"} ": " span id="lang" {}}
+        script { (PreEscaped(SCRIPT)) }
     }
 }
 
